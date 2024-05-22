@@ -10,7 +10,15 @@ import Foundation
 struct MemoryGame<CardContent> where CardContent: Equatable {
     private(set) var cards: Array<Card> //SET allows other classes/structs can view but not modify
     
-    private var indexOfTheOnlyFaceUpCard: Int?
+    private var indexOfTheOnlyFaceUpCard: Int? {
+        get {
+            cards.indices.filter({cards[$0].isFaceUp}).oneAndOnly //This is returned! (dont need to write return
+        }
+        
+        set {
+            cards.indices.forEach({cards[$0].isFaceUp = ($0 == newValue)})
+        }
+    }
     
     mutating func choose(_ card: Card) {
         //if let chosenIndex = index(of: card) { OLDER WAY
@@ -23,21 +31,12 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
                     cards[chosenIndex].isMatched = true
                     cards[potentialMatchIndex].isMatched = true
                 }
-                indexOfTheOnlyFaceUpCard = nil
+                cards[chosenIndex].isFaceUp = true
             } else {
-                for index in cards.indices {
-                    cards[index].isFaceUp = false
-                }
                 indexOfTheOnlyFaceUpCard = chosenIndex
             }
-            
-            cards[chosenIndex].isFaceUp.toggle()
-        } else {
-            print("\(cards)")
         }
-        
     }
-    
 //    func index(of card: Card) -> Int? {
 //        for index in 0..<cards.count {
 //            if cards[index].id == card.id {
@@ -62,11 +61,23 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     
     
     struct Card: Identifiable {
-        var id: Int
+        let id: Int
         
-        var isFaceUp: Bool = false
-        var isMatched: Bool = false
-        var content: CardContent
+        var isFaceUp = false
+        var isMatched = false
+        let content: CardContent
         
     }
+}
+
+
+extension Array {
+    var oneAndOnly: Element? {
+        if self.count == 1 {
+            return self[0]
+        } else {
+            return nil
+        }
+    }
+    
 }
